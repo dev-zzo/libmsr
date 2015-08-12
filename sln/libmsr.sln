@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmsr", "libmsr.vcxproj", "{5441A902-049B-4DB3-99B2-99B94054E1FB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msrtool", "msrtool.vcxproj", "{4D72401B-5AEF-438A-A9FF-2C18DC32E2FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{5441A902-049B-4DB3-99B2-99B94054E1FB}.Debug|Win32.Build.0 = Debug|Win32
 		{5441A902-049B-4DB3-99B2-99B94054E1FB}.Release|Win32.ActiveCfg = Release|Win32
 		{5441A902-049B-4DB3-99B2-99B94054E1FB}.Release|Win32.Build.0 = Release|Win32
+		{4D72401B-5AEF-438A-A9FF-2C18DC32E2FD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4D72401B-5AEF-438A-A9FF-2C18DC32E2FD}.Debug|Win32.Build.0 = Debug|Win32
+		{4D72401B-5AEF-438A-A9FF-2C18DC32E2FD}.Release|Win32.ActiveCfg = Release|Win32
+		{4D72401B-5AEF-438A-A9FF-2C18DC32E2FD}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

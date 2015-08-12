@@ -11,25 +11,26 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\internals.h" />
-    <ClInclude Include="..\src\libmsr.h" />
+    <ClCompile Include="..\src\main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\libmsr.c" />
+    <ProjectReference Include="libmsr.vcxproj">
+      <Project>{5441a902-049b-4db3-99b2-99b94054e1fb}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5441A902-049B-4DB3-99B2-99B94054E1FB}</ProjectGuid>
+    <ProjectGuid>{4D72401B-5AEF-438A-A9FF-2C18DC32E2FD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>libmsr</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
