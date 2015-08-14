@@ -6,5 +6,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\libmsr.c" />
+    <ClCompile Include="..\src\codec.c" />
   </ItemGroup>
 </Project>

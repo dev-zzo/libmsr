@@ -30,6 +30,8 @@ typedef void* LIBMSRHANDLE;
 #define LIBMSR_PORT_SETUP_FAILED (LIBMSR_COMM_PORT_ERROR | 0x00000003)
 #define LIBMSR_PORT_WRITE_FAILED (LIBMSR_COMM_PORT_ERROR | 0x00000004)
 #define LIBMSR_PORT_READ_FAILED (LIBMSR_COMM_PORT_ERROR | 0x00000005)
+#define LIBMSR_CODEC_ERROR (LIBMSR_ERROR | 0x00040000L)
+#define LIBMSR_PARITY_ERROR (LIBMSR_CODEC_ERROR | 0x00000001)
 
 /* Open the port and allocate a handle. */
 LIBMSRSTATUS LIBMSRAPI MSROpen(LPTSTR PortName, LIBMSRHANDLE *pHandle);
@@ -53,7 +55,31 @@ LIBMSRSTATUS LIBMSRAPI MSRGetLeadingZeroCount(LIBMSRHANDLE Handle, BYTE *pTracks
 LIBMSRSTATUS LIBMSRAPI MSRSetDensity(LIBMSRHANDLE Handle, UINT Track, UINT BitsPerInch);
 LIBMSRSTATUS LIBMSRAPI MSRSetBitsPerChar(LIBMSRHANDLE Handle, BYTE Track1BPC, BYTE Track2BPC, BYTE Track3BPC);
 
-/* Read data from an ISO-compliant card. */
+/* Read data from an ISO-compliant card.
+ */
 LIBMSRSTATUS LIBMSRAPI MSRCardReadISO(LIBMSRHANDLE Handle, BYTE *pTrack1Buffer, BYTE *pTrack2Buffer, BYTE *pTrack3Buffer);
+
+/* Read raw data from a card.
+ */
+LIBMSRSTATUS LIBMSRAPI MSRCardReadRaw(LIBMSRHANDLE Handle, 
+    BYTE *pTrack1Buffer, SIZE_T *pTrack1Length,
+    BYTE *pTrack2Buffer, SIZE_T *pTrack2Length,
+    BYTE *pTrack3Buffer, SIZE_T *pTrack3Length);
+
+/* Unpack raw data from the reader.
+ */
+LIBMSRSTATUS LIBMSRAPI MSRUnpackData(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest);
+/* Pack data to be sent to the encoder.
+ */
+LIBMSRSTATUS LIBMSRAPI MSRPackData(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest, SIZE_T *DestLen);
+
+/* Convenience functions -- unpack/decode and encode/pack. */
+LIBMSRSTATUS LIBMSRAPI MSRDecodeTrack(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest);
+LIBMSRSTATUS LIBMSRAPI MSREncodeTrack(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest);
+
+/* Codec API */
+LIBMSRSTATUS LIBMSRAPI ISO7811ToAscii(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest);
+LIBMSRSTATUS LIBMSRAPI AsciiToISO7811(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest);
+
 
 #endif /* LIBMSR_H */

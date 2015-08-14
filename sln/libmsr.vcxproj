@@ -15,6 +15,7 @@
     <ClInclude Include="..\src\libmsr.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\codec.c" />
     <ClCompile Include="..\src\libmsr.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
