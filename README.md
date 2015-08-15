@@ -38,5 +38,6 @@ The project/solution files supplied are for MSVC 2010. Feel free to contribute f
 
 # References
 
+* http://www.gae.ucm.es/~padilla/extrawork/stripe.html
 * https://code.google.com/p/libmsr
 * http://sourceforge.net/projects/stripesnoop/
