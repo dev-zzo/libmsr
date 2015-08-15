@@ -74,7 +74,6 @@ static LIBMSRSTATUS LIBMSRDECL _MSRSend(LPMSRCONTEXT Context, LPBYTE Buffer, SIZ
 {
     DWORD BytesWritten;
 
-    PurgeComm(Context->PortHandle, PURGE_RXCLEAR | PURGE_TXCLEAR);
     while (Count > 0) {
         if (!WriteFile(Context->PortHandle, Buffer, Count, &BytesWritten, NULL)) {
             return LIBMSR_PORT_WRITE_FAILED;
@@ -187,6 +186,7 @@ static LIBMSRSTATUS LIBMSRDECL _MSRDoSendRecvWithCheck(LPMSRCONTEXT Context, BYT
     LIBMSRSTATUS Status;
     int Esc;
 
+    PurgeComm(Context->PortHandle, PURGE_RXCLEAR | PURGE_TXCLEAR);
     Status = _MSRSend(Context, CommandBuffer, CommandLength);
     if (Status < 0) {
         return Status;
@@ -490,6 +490,64 @@ LIBMSRSTATUS LIBMSRAPI MSRCardReadRaw(LIBMSRHANDLE Handle,
     return LIBMSR_OK;
 }
 
+static LIBMSRSTATUS LIBMSRDECL _MSRCardXmitTrack(LPMSRCONTEXT Context, BYTE TrackId, BYTE *Buffer, SIZE_T Length)
+{
+    BYTE CommandBuffer[3];
+    LIBMSRSTATUS Status;
+
+    CommandBuffer[0] = ESC;
+    CommandBuffer[1] = TrackId;
+    CommandBuffer[2] = (BYTE)Length;
+    Status = _MSRSend(Context, CommandBuffer, 3);
+    if (Status < 0) {
+        return Status;
+    }
+    if (Length > 0) {
+        Status = _MSRSend(Context, Buffer, Length);
+    }
+    return Status;
+}
+
+LIBMSRSTATUS LIBMSRAPI MSRCardWriteRaw(LIBMSRHANDLE Handle, 
+    BYTE *pTrack1Buffer, SIZE_T Track1Length,
+    BYTE *pTrack2Buffer, SIZE_T Track2Length,
+    BYTE *pTrack3Buffer, SIZE_T Track3Length)
+{
+    LPMSRCONTEXT Context = (LPMSRCONTEXT)Handle;
+    BYTE CommandBuffer[3];
+    LIBMSRSTATUS Status;
+
+    CommandBuffer[0] = ESC;
+    CommandBuffer[1] = 0x6E;
+    Status = _MSRSend(Context, CommandBuffer, 2);
+    if (Status < 0) {
+        return Status;
+    }
+
+    CommandBuffer[1] = 0x73;
+    Status = _MSRSend(Context, CommandBuffer, 2);
+    if (Status < 0) {
+        return Status;
+    }
+
+    Status = _MSRCardXmitTrack(Context, 1, pTrack1Buffer, Track1Length);
+    if (Status < 0) {
+        return Status;
+    }
+    Status = _MSRCardXmitTrack(Context, 2, pTrack2Buffer, Track2Length);
+    if (Status < 0) {
+        return Status;
+    }
+    Status = _MSRCardXmitTrack(Context, 3, pTrack3Buffer, Track3Length);
+    if (Status < 0) {
+        return Status;
+    }
+
+    CommandBuffer[0] = 0x3F;
+    CommandBuffer[1] = 0x1C;
+    return _MSRDoCommandNoData(Context, CommandBuffer, 2);
+}
+
 static const BYTE BitReverseTable[256] = {
     0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0, 0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
     0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8, 0x18, 0x98, 0x58, 0xD8, 0x38, 0xB8, 0x78, 0xF8,
@@ -509,15 +567,41 @@ static const BYTE BitReverseTable[256] = {
     0x0F, 0x8F, 0x4F, 0xCF, 0x2F, 0xAF, 0x6F, 0xEF, 0x1F, 0x9F, 0x5F, 0xDF, 0x3F, 0xBF, 0x7F, 0xFF,
 };
 
+BYTE ComputeParity(BYTE x)
+{
+    int PopCount;
+
+    PopCount = 0;
+    while (x) {
+        PopCount += x & 1;
+        x >>= 1;
+    }
+    return (PopCount & 1) == 0;
+}
+
 LIBMSRSTATUS LIBMSRAPI MSRUnpackData(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest)
 {
     BYTE ParityMask = 1 << (BitsPerChar - 1);
 
     while (SourceLen-- > 0) {
         BYTE ch;
+        BYTE Parity;
 
         ch = BitReverseTable[*Source++] >> (8 - BitsPerChar);
+        Parity = !!(ch & ParityMask);
         ch &= ~ParityMask;
+        *Dest++ = ch;
+    }
+    return LIBMSR_OK;
+}
+
+LIBMSRSTATUS LIBMSRAPI MSRPackData(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest)
+{
+    while (SourceLen-- > 0) {
+        BYTE ch;
+
+        ch = *Source++;
+        ch |= ComputeParity(ch) << (BitsPerChar - 1);
         *Dest++ = ch;
     }
     return LIBMSR_OK;
@@ -531,3 +615,9 @@ LIBMSRSTATUS LIBMSRAPI MSRDecodeTrack(UINT BitsPerChar, BYTE *Source, SIZE_T Sou
     return LIBMSR_OK;
 }
 
+LIBMSRSTATUS LIBMSRAPI MSREncodeTrack(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest)
+{
+    AsciiToISO7811(BitsPerChar, Source, SourceLen, Dest);
+    MSRPackData(BitsPerChar, Dest, SourceLen, Dest);
+    return LIBMSR_OK;
+}

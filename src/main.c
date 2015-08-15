@@ -48,6 +48,30 @@ int _tmain(int argc, _TCHAR *argv[])
         printf("Failed with status %08X\n", Status);
         return 1;
     }
+
+    printf("Swipe source card.\n");
+    Status = MSRCardReadRaw(Handle, Track1, &Track1Len, Track2, &Track2Len, Track3, &Track3Len);
+    if (Status < 0) {
+        printf("Failed with status %08X\n", Status);
+        return 1;
+    }
+    MSRDecodeTrack(7, Track1, Track1Len, Track1Text);
+    MSRDecodeTrack(5, Track2, Track2Len, Track2Text);
+    MSRDecodeTrack(5, Track3, Track3Len, Track3Text);
+    printf("Track1: '%s'\n", Track1Text);
+    printf("Track2: '%s'\n", Track2Text);
+    printf("Track3: '%s'\n", Track3Text);
+
+    printf("Swipe blank card to be written.\n");
+    MSREncodeTrack(7, Track1Text, Track1Len, Track1);
+    MSREncodeTrack(5, Track2Text, Track2Len, Track2);
+    Status = MSRCardWriteRaw(Handle, Track1, Track1Len, Track2, Track2Len, NULL, 0);
+    if (Status < 0) {
+        printf("Failed with status %08X\n", Status);
+        return 1;
+    }
+
+    printf("Swipe written card to verify.\n");
     Status = MSRCardReadRaw(Handle, Track1, &Track1Len, Track2, &Track2Len, Track3, &Track3Len);
     if (Status < 0) {
         printf("Failed with status %08X\n", Status);

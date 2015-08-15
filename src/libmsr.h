@@ -65,13 +65,17 @@ LIBMSRSTATUS LIBMSRAPI MSRCardReadRaw(LIBMSRHANDLE Handle,
     BYTE *pTrack1Buffer, SIZE_T *pTrack1Length,
     BYTE *pTrack2Buffer, SIZE_T *pTrack2Length,
     BYTE *pTrack3Buffer, SIZE_T *pTrack3Length);
+LIBMSRSTATUS LIBMSRAPI MSRCardWriteRaw(LIBMSRHANDLE Handle, 
+    BYTE *pTrack1Buffer, SIZE_T Track1Length,
+    BYTE *pTrack2Buffer, SIZE_T Track2Length,
+    BYTE *pTrack3Buffer, SIZE_T Track3Length);
 
 /* Unpack raw data from the reader.
  */
 LIBMSRSTATUS LIBMSRAPI MSRUnpackData(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest);
 /* Pack data to be sent to the encoder.
  */
-LIBMSRSTATUS LIBMSRAPI MSRPackData(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest, SIZE_T *DestLen);
+LIBMSRSTATUS LIBMSRAPI MSRPackData(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest);
 
 /* Convenience functions -- unpack/decode and encode/pack. */
 LIBMSRSTATUS LIBMSRAPI MSRDecodeTrack(UINT BitsPerChar, BYTE *Source, SIZE_T SourceLen, BYTE *Dest);
